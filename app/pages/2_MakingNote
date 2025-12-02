@@ -20,8 +20,7 @@ if vector_store_id is None:
 client = OpenAI(api_key=api_key)
 
 
-def generate_lecture_notes_from_vector_store(client: OpenAI,
-                                             vector_store_id: str) -> str:
+def generate_lecture_notes_from_vector_store(client, vector_store_id):
     system_prompt = (
         "너는 대학 강의를 정리해 주는 조교야.\n"
         "첨부된 강의자료(슬라이드, PDF 등)를 기반으로 다음 형식의 강의노트를 만들어줘.\n\n"
@@ -41,7 +40,7 @@ def generate_lecture_notes_from_vector_store(client: OpenAI,
     )
 
     response = client.responses.create(
-        model="gpt-5-mini",  # 1번에서 쓰는 모델 이름과 동일하게 맞춰줘
+        model="gpt-4o-mini",  # 1번에서 쓰는 모델 이름에 맞춰서 바꿔도 됨
         input=[
             {"role": "developer", "content": system_prompt},
             {
@@ -51,12 +50,11 @@ def generate_lecture_notes_from_vector_store(client: OpenAI,
                 ),
             },
         ],
-        tools=[{"type": "file_search"}],
-        tool_resources={
-            "file_search": {
-                "vector_store_ids": [vector_store_id],
-            }
-        },
+        tools=[{
+            "type": "file_search",
+            "vector_store_ids": [vector_store_id],
+            "max_num_results": 20,
+        }],
         temperature=0.3,
     )
 
